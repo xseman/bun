@@ -14,7 +14,9 @@ it("should exclude files matching --watch-excludes patterns", async () => {
   const logPath = join(cwd, "output.log");
 
   // Create script that continuously modifies excluded files
-  await Bun.write(scriptPath, `
+  await Bun.write(
+    scriptPath,
+    `
     require("fs").writeFileSync("${logPath}", "executed-" + Date.now());
     
     setInterval(() => {
@@ -22,7 +24,8 @@ it("should exclude files matching --watch-excludes patterns", async () => {
     }, 500);
     
     process.on('SIGTERM', () => process.exit(0));
-  `);
+  `,
+  );
 
   await Bun.write(dataPath, "{}");
 
@@ -41,15 +44,18 @@ it("should exclude files matching --watch-excludes patterns", async () => {
 
   // Wait for script to modify excluded files multiple times
   await Bun.sleep(2000);
-  
+
   // Excluded file modifications should not trigger reload
   expect(await Bun.file(logPath).text()).toBe(initialLog);
 
   // Modify watched file - should trigger reload
-  await Bun.write(scriptPath, `
+  await Bun.write(
+    scriptPath,
+    `
     require("fs").writeFileSync("${logPath}", "reloaded-" + Date.now());
     process.on('SIGTERM', () => process.exit(0));
-  `);
+  `,
+  );
 
   await Bun.sleep(1000);
 
@@ -72,13 +78,18 @@ it("should exclude files using bunfig.toml watch.excludes configuration", async 
   const bunfigPath = join(cwd, "bunfig.toml");
 
   // Create bunfig.toml with watch excludes
-  await Bun.write(bunfigPath, `
+  await Bun.write(
+    bunfigPath,
+    `
 [watch]
 excludes = ["*.json"]
-  `);
+  `,
+  );
 
   // Create script that continuously modifies excluded files
-  await Bun.write(scriptPath, `
+  await Bun.write(
+    scriptPath,
+    `
     require("fs").writeFileSync("${logPath}", "executed-" + Date.now());
     
     setInterval(() => {
@@ -86,7 +97,8 @@ excludes = ["*.json"]
     }, 500);
     
     process.on('SIGTERM', () => process.exit(0));
-  `);
+  `,
+  );
 
   // Create excluded data file
   await Bun.write(dataPath, "{}");
@@ -106,15 +118,18 @@ excludes = ["*.json"]
 
   // Wait for script to modify excluded files multiple times
   await Bun.sleep(2000);
-  
+
   // Excluded file modifications should not trigger reload
   expect(await Bun.file(logPath).text()).toBe(initialLog);
 
   // Modify watched file - should trigger reload
-  await Bun.write(scriptPath, `
+  await Bun.write(
+    scriptPath,
+    `
     require("fs").writeFileSync("${logPath}", "reloaded-" + Date.now());
     process.on('SIGTERM', () => process.exit(0));
-  `);
+  `,
+  );
 
   await Bun.sleep(1000);
 
